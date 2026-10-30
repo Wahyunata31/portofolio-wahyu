@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="id" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wahyu Pranata — Full-stack Web Engineer & Designer</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            accent: '#6366f1',
+                            neon: '#00f0ff',
+                            purple: '#a855f7'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0.0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-nav {
+            background: rgba(10, 15, 29, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Custom Cursor */
+        #custom-cursor, #cursor-blur {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            border-radius: 50%;
+            transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.2s ease;
+            transform: translate(-50%, -50%);
+        }
+        #custom-cursor {
+            width: 12px;
+            height: 12px;
+            background-color: #60a5fa;
+        }
+        #cursor-blur {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+            transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1), width 0.2s, height 0.2s;
+        }
+        body.hovering #custom-cursor {
+            transform: translate(-50%, -50%) scale(2.5);
+            background-color: #00f0ff;
+        }
+        body.hovering #cursor-blur {
+            transform: translate(-50%, -50%) scale(1.6);
+            border-color: rgba(0, 240, 255, 0.8);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        /* Theme Presets */
+        body.theme-pastel { --bg-main: #0f141d; }
+        body.theme-neon { --bg-main: #050811; }
+        body.theme-light {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        body.theme-light .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #0f172a;
+        }
+        body.theme-light .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        body.theme-light .text-slate-400 { color: #64748b; }
+        body.theme-light .text-white { color: #0f172a; }
+
+        .glow-text {
+            text-shadow: 0 0 20px rgba(96, 165, 250, 0.35);
+        }
+    </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 font-sans selection:bg-brand-500 selection:text-white transition-colors duration-300 relative overflow-x-hidden">
+
+    <div id="custom-cursor" class="hidden md:block"></div>
+    <div id="cursor-blur" class="hidden md:block"></div>
+
+    <canvas id="bg-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+    
+    <!-- Glow Background Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-600/20 rounded-full blur-[140px] pointer-events-none animate-pulse-slow"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-brand-purple/15 rounded-full blur-[160px] pointer-events-none animate-pulse-slow"></div>
+
+    <header class="fixed top-0 left-0 w-full z-50 glass-nav px-4 lg:px-12 py-4 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-brand-neon p-[1px] transition-transform group-hover:scale-105">
+                    <div class="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
+                        <span class="font-display font-bold text-xl text-white">WP</span>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-display font-bold text-lg leading-tight tracking-tight text-white group-hover:text-brand-400 transition-colors">Wahyu<span class="text-brand-400">.</span>Pranata</span>
+                    <span class="text-[10px] text-slate-400 tracking-widest uppercase">Full-stack Web Engineer</span>
+                </div>
+            </a>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                <a href="#about" class="hover:text-white transition-all">Tentang</a>
+                <a href="#portfolio" class="hover:text-white transition-all">Hasil Pekerjaan</a>
+                <a href="#services-offered" class="hover:text-white transition-all">Layanan</a>
+                <a href="#services" class="hover:text-white transition-all">Keahlian & Backend</a>
+                <a href="#process" class="hover:text-white transition-all">Proses</a>
+                <a href="#estimator" class="hover:text-white transition-all">Estimator</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Tersedia Untuk Projek
+                </div>
+
+                <!-- Theme Switcher -->
+                <div class="relative group">
+                    <button id="theme-btn" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white transition-all" title="Ubah Tema">
+                        <i class="fa-solid fa-palette text-sm"></i>
+                    </button>
+                    <div class="absolute right-0 top-12 w-44 py-2 glass-card rounded-xl shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
+                        <div class="px-3 py-1 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Tema Portofolio</div>
+                        <button onclick="setTheme('minimal')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-white/10 text-slate-200 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Minimal Dark</button>
+                        <button onclick="setTheme('pastel')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-white/10 text-slate-200 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-pink-400"></span> Pastel Dark</button>
+                        <button onclick="setTheme('neon')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-white/10 text-slate-200 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Cyber Neon</button>
+                        <button onclick="setTheme('light')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-white/10 text-slate-200 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-300"></span> Clean Light</button>
+                    </div>
+                </div>
+
+                <a href="#contact" class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-sm font-semibold shadow-lg transition-all">
+                    <span>Hubungi Saya</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </a>
+
+                <button id="mobile-menu-btn" class="md:hidden w-10 h-10 rounded-xl glass-card flex items-center justify-center text-slate-200">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-slate-800/80 flex flex-col gap-3 pb-2 text-sm">
+            <a href="#about" class="px-3 py-2 rounded-lg hover:bg-slate-800/50 text-slate-300">Tentang</a>
+            <a href="#portfolio" class="px-3 py-2 rounded-lg hover:bg-slate-800/50 text-slate-300">Hasil Pekerjaan</a>
+            <a href="#services-offered" class="px-3 py-2 rounded-lg hover:bg-slate-800/50 text-slate-300">Layanan Website</a>
+            <a href="#services" class="px-3 py-2 rounded-lg hover:bg-slate-800/50 text-slate-300">Keahlian & Backend</a>
+            <a href="#process" class="px-3 py-2 rounded-lg hover:bg-slate-800/50 text-slate-300">Proses</a>
+            <a href="#estimator" class="px-3 py-2 rounded-lg hover:bg-slate-800/50 text-slate-300">Hitung Biaya Projek</a>
+            <a href="#contact" class="px-3 py-2 rounded-lg bg-brand-600 text-white text-center font-semibold mt-2">Hubungi Saya</a>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="about" class="relative pt-36 pb-20 md:pt-48 md:pb-32 px-4 lg:px-12 max-w-7xl mx-auto z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <div class="lg:col-span-8 flex flex-col items-start gap-6">
+                <!-- Location Badge Jayapura -->
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card text-xs text-slate-300 border border-slate-700/50">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-brand-400"></i> Jayapura, Indonesia (WIT)</span>
+                    <span class="text-slate-600">•</span>
+                    <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-regular fa-clock"></i> <span id="hero-clock">--:-- WIT</span></span>
+                </div>
+
+                <h1 class="font-display text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] glow-text">
+                    Solusi Web Modern & <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-400 via-indigo-400 to-brand-neon">Back-end Terintegrasi.</span>
+                </h1>
+
+                <p class="text-lg sm:text-xl text-slate-400 max-w-2xl font-normal leading-relaxed">
+                    Halo, saya <strong>Wahyu Pranata</strong>! Web Developer spesialis pembuatan website profesional untuk Bisnis, Lembaga Pendidikan, Instansi Pemerintah, dan Portofolio Individu menggunakan <span class="text-white font-semibold">PHP, Laravel, React, & Tailwind CSS</span>.
+                </p>
+
+                <div class="flex flex-wrap items-center gap-4 pt-2">
+                    <a href="#portfolio" class="px-8 py-4 rounded-xl bg-white text-slate-950 font-bold text-sm hover:bg-slate-200 transition-all shadow-xl hover:scale-[1.02]">
+                        Lihat Contoh Pekerjaan <i class="fa-solid fa-arrow-down-long ml-2"></i>
+                    </a>
+                    <a href="#estimator" class="px-8 py-4 rounded-xl glass-card text-white font-semibold text-sm hover:border-brand-400 transition-all hover:scale-[1.02]">
+                        Estimasi Biaya Projek
+                    </a>
+                </div>
+
+                <div class="pt-8 border-t border-slate-800/80 w-full flex flex-wrap items-center gap-8 text-xs text-slate-400 font-medium">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg glass-card flex items-center justify-center text-red-500 font-bold text-base"><i class="fa-brands fa-laravel"></i></div>
+                        <div>
+                            <div class="text-white font-semibold">Laravel Specialist</div>
+                            <div class="text-slate-500">Robust Back-end Architecture</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg glass-card flex items-center justify-center text-indigo-400 font-bold text-base"><i class="fa-brands fa-php"></i></div>
+                        <div>
+                            <div class="text-white font-semibold">PHP & MySQL</div>
+                            <div class="text-slate-500">Database & API Integration</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Profile Card -->
+            <div class="lg:col-span-4 flex justify-center">
+                <div class="relative w-full max-w-sm aspect-[3/4] rounded-3xl glass-card p-3 border border-white/10 shadow-2xl group">
+                    <div class="w-full h-full rounded-2xl overflow-hidden relative bg-slate-900">
+                        <img src="profile.jpeg" 
+                             alt="Wahyu Pranata" 
+                             class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700">
+                        
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+                        
+                        <div class="absolute bottom-4 left-4 right-4 p-4 rounded-xl glass-card border border-white/10 backdrop-blur-md">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-xs text-brand-400 font-semibold tracking-wide uppercase">Full-stack Web Engineer</p>
+                                    <h3 class="text-white font-bold text-lg">Wahyu Pranata</h3>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-code text-brand-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION CONTOH HASIL PEKERJAAN (PORTOFOLIO) -->
+    <section id="portfolio" class="py-24 px-4 lg:px-12 max-w-7xl mx-auto z-10 relative">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+                <span class="text-brand-400 text-xs font-bold uppercase tracking-widest">Portofolio & Studi Kasus</span>
+                <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white mt-2">Contoh Hasil Pekerjaan<span class="text-brand-500">.</span></h2>
+            </div>
+            <p class="text-slate-400 text-sm max-w-md">Contoh implementasi sistem informasi berbasis web untuk instansi pemerintah dan pemantauan publik.</p>
+        </div>
+
+        <!-- Featured Project: Web BMKG Sentani -->
+        <div class="glass-card rounded-3xl p-6 lg:p-10 border border-white/10 mb-12">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Instansi Pemerintah</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20">Web Portal & Data Realtime</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white">Sistem Portal Stasiun Meteorologi Kelas I Sentani - Jayapura (BMKG)</h3>
+                </div>
+                <div class="text-xs text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-brand-400"></i> Sentani, Jayapura, Papua
+                </div>
+            </div>
+
+            <p class="text-slate-300 text-sm leading-relaxed mb-8 max-w-4xl">
+                Pengembangan sistem informasi web untuk BMKG Sentani yang menyajikan prakiraan cuaca, integrasi radar citra satelit cuaca secara realtime, portal pelayanan data & informasi meteorologi (PTSP), serta diseminasi data gempa bumi terkini.
+            </p>
+
+            <!-- Gallery 4 Gambar Projek -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Porto 1 -->
+                <div class="glass-card rounded-2xl overflow-hidden border border-white/5 group hover:border-brand-500/40 transition-all">
+                    <div class="aspect-video overflow-hidden bg-slate-900 relative">
+                        <img src="porto1.png" alt="Prakiraan Cuaca Sentani & Peringatan Dini" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-white font-bold text-base mb-1">Beranda & Dashboard Cuaca Sentani</h4>
+                        <p class="text-slate-400 text-xs">Penyajian prakiraan cuaca 24 jam wilayah Sentani, status kelembapan, angin, dan notifikasi peringatan dini cuaca ekstrem Papua.</p>
+                    </div>
+                </div>
+
+                <!-- Porto 2 -->
+                <div class="glass-card rounded-2xl overflow-hidden border border-white/5 group hover:border-brand-500/40 transition-all">
+                    <div class="aspect-video overflow-hidden bg-slate-900 relative">
+                        <img src="porto2.png" alt="Radar Cuaca C-Band Sentani Jayapura" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-white font-bold text-base mb-1">Integrasi Peta Radar Cuaca C-Band</h4>
+                        <p class="text-slate-400 text-xs">Visualisasi GIS pemantauan awan dan intensitas hujan berbasis radar interaktif dengan panel legenda dBZ dan pembaruan berkala.</p>
+                    </div>
+                </div>
+
+                <!-- Porto 3 -->
+                <div class="glass-card rounded-2xl overflow-hidden border border-white/5 group hover:border-brand-500/40 transition-all">
+                    <div class="aspect-video overflow-hidden bg-slate-900 relative">
+                        <img src="porto3.png" alt="Pelayanan Data dan Informasi Meteorologi" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-white font-bold text-base mb-1">Portal Pelayanan Data & Informasi (PTSP)</h4>
+                        <p class="text-slate-400 text-xs">Informasi jenis layanan meteorologi publik, regulasi tarif PNBP resmi, serta alur pengajuan permohonan data online.</p>
+                    </div>
+                </div>
+
+                <!-- Porto 4 -->
+                <div class="glass-card rounded-2xl overflow-hidden border border-white/5 group hover:border-brand-500/40 transition-all">
+                    <div class="aspect-video overflow-hidden bg-slate-900 relative">
+                        <img src="porto4.png" alt="Informasi Gempa Bumi Terbaru" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-white font-bold text-base mb-1">Informasi Gempa Bumi Terbaru & ShakeMap</h4>
+                        <p class="text-slate-400 text-xs">Penyajian data gempa bumi terkini lengkap dengan visual peta episenter (ShakeMap), magnitudo, kedalaman, dan informasi dirasakan.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- LAYANAN WEBSITE DIBERIKAN -->
+    <section id="services-offered" class="py-24 px-4 lg:px-12 max-w-7xl mx-auto z-10 relative">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+                <span class="text-brand-400 text-xs font-bold uppercase tracking-widest">Layanan Utama</span>
+                <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white mt-2">Pembuatan Website<span class="text-brand-500">.</span></h2>
+            </div>
+            <p class="text-slate-400 text-sm max-w-md">Mengembangkan solusi website yang dirancang khusus sesuai dengan skala dan kebutuhan sektor Anda.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- 1. Bisnis -->
+            <div class="glass-card rounded-3xl p-8 border border-white/5 hover:border-brand-500/40 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center text-2xl mb-6 border border-brand-500/20 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-3">Website Bisnis & UMKM</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">Website profil perusahaan, e-commerce, hingga sistem landing page yang responsif untuk meningkatkan kredibilitas brand, penjualan, serta ekspansi bisnis Anda.</p>
+                <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Corporate Website & Profil Perusahaan</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Toko Online / E-Commerce dengan Payment Gateway</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Optimasi SEO & Fast Loading Speed</li>
+                </ul>
+            </div>
+
+            <!-- 2. Pendidikan -->
+            <div class="glass-card rounded-3xl p-8 border border-white/5 hover:border-brand-500/40 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-2xl mb-6 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-3">Website Pendidikan & Kampus</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">Sistem web terpadu untuk Sekolah, Pesantren, dan Universitas yang memudahkan penyampaian informasi, penerimaan siswa baru, serta pengumuman akademik.</p>
+                <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Web Portal Sekolah & Perguruan Tinggi</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Sistem Penerimaan Peserta Didik Baru (PPDB)</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Panel Berita & Pengumuman Akademik</li>
+                </ul>
+            </div>
+
+            <!-- 3. Pemerintah -->
+            <div class="glass-card rounded-3xl p-8 border border-white/5 hover:border-brand-500/40 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-2xl mb-6 border border-purple-500/20 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-3">Website Pemerintah & Instansi</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">Portal informasi publik yang standar aman, ramah pengguna, transparan, serta mendukung integrasi data publik untuk dinas atau lembaga daerah.</p>
+                <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Portal Resmi Dinas / Desa / Lembaga Publik</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Sistem Transparansi Informasi & Layanan Masyarakat</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Keamanan Tingkat Tinggi & Bebas Kerentanan Standard</li>
+                </ul>
+            </div>
+
+            <!-- 4. Individu -->
+            <div class="glass-card rounded-3xl p-8 border border-white/5 hover:border-brand-500/40 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mb-6 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-3">Website Portofolio Individu</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">Website personal interaktif dan elegan untuk profesional, kreator konten, dokter, pengacara, hingga freelancer untuk menunjukkan keahlian & karya.</p>
+                <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-4">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Personal Branding & Portofolio Interaktif</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Resume/CV Online & Integrasi Kontak WhatsApp</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Desain Eksklusif Sesuai Karakter Diri</li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- KEAHLIAN & BACKEND SECTION -->
+    <section id="services" class="py-24 px-4 lg:px-12 max-w-7xl mx-auto z-10 relative">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            <div class="lg:col-span-5 flex flex-col justify-between">
+                <div>
+                    <span class="text-brand-400 text-xs font-bold uppercase tracking-widest">Keahlian & Teknologi</span>
+                    <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white mt-2 mb-6">Kemampuan Rekayasa Web<span class="text-brand-500">.</span></h2>
+                    <p class="text-slate-400 text-base leading-relaxed mb-8">
+                        Mengombinasikan logika *back-end* yang kokoh berstandar arsitektur bersih dengan antarmuka *front-end* modern, responsif, dan fleksibel.
+                    </p>
+                </div>
+
+                <!-- Tech Stack Badges -->
+                <div class="glass-card p-6 rounded-2xl border border-white/5">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Tech Stack Utama</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-red-400 text-xs font-bold flex items-center gap-2"><i class="fa-brands fa-laravel"></i> Laravel</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-indigo-400 text-xs font-bold flex items-center gap-2"><i class="fa-brands fa-php"></i> PHP</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-blue-400 text-xs font-medium flex items-center gap-2"><i class="fa-solid fa-database"></i> MySQL / PostgreSQL</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-cyan-400 text-xs font-medium flex items-center gap-2"><i class="fa-brands fa-react"></i> React / Next.js</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-yellow-400 text-xs font-medium flex items-center gap-2"><i class="fa-brands fa-js"></i> JavaScript</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-sky-400 text-xs font-medium flex items-center gap-2"><i class="fa-solid fa-wind"></i> Tailwind CSS</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 flex flex-col gap-4">
+                
+                <!-- Back-end Web Engineering -->
+                <div class="glass-card rounded-2xl p-6 md:p-8 border border-white/5 hover:border-brand-500/30 transition-all">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="font-display text-2xl font-bold text-red-400">01</span>
+                            <h3 class="text-xl font-bold text-white">Back-end Web Engineering (Laravel & PHP)</h3>
+                        </div>
+                        <i class="fa-brands fa-laravel text-red-400 text-2xl"></i>
+                    </div>
+                    <p class="text-slate-400 text-sm mt-4 leading-relaxed">
+                        Pengembangan arsitektur server yang aman dan handal menggunakan framework **Laravel & PHP**. Penanganan logika bisnis rumit, autentikasi user, manajemen database Relational (MySQL/PostgreSQL), RESTful API, dan optimasi performa backend.
+                    </p>
+                </div>
+
+                <!-- Frontend Engineering -->
+                <div class="glass-card rounded-2xl p-6 md:p-8 border border-white/5 hover:border-brand-500/30 transition-all">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="font-display text-2xl font-bold text-brand-400">02</span>
+                            <h3 class="text-xl font-bold text-white">Front-end Development</h3>
+                        </div>
+                        <i class="fa-solid fa-code text-brand-400 text-xl"></i>
+                    </div>
+                    <p class="text-slate-400 text-sm mt-4 leading-relaxed">
+                        Membangun antarmuka pengguna yang cepat, terstruktur, responsif di semua perangkat (Mobile & Desktop), serta terintegrasi mulus dengan REST API back-end.
+                    </p>
+                </div>
+
+                <!-- UI/UX Design -->
+                <div class="glass-card rounded-2xl p-6 md:p-8 border border-white/5 hover:border-brand-500/30 transition-all">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="font-display text-2xl font-bold text-indigo-400">03</span>
+                            <h3 class="text-xl font-bold text-white">UI/UX Design & Wireframing</h3>
+                        </div>
+                        <i class="fa-solid fa-pen-nib text-indigo-400 text-xl"></i>
+                    </div>
+                    <p class="text-slate-400 text-sm mt-4 leading-relaxed">
+                        Perancangan tata letak visual, pengalaman pengguna yang intuitif, serta pembuatan maket/prototipe sebelum proses pengodean dilakukan.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PROCESS SECTION -->
+    <section id="process" class="py-24 px-4 lg:px-12 max-w-7xl mx-auto z-10 relative">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <span class="text-brand-400 text-xs font-bold uppercase tracking-widest">Alur Kerja</span>
+            <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white mt-2">Bagaimana Saya Bekerja<span class="text-brand-500">.</span></h2>
+            <p class="text-slate-400 text-sm mt-4">Metode terstruktur untuk memastikan website selesai tepat waktu dan sesuai spesifikasi.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+            <div class="glass-card p-6 rounded-2xl border border-white/5 relative group hover:border-brand-500/50 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center font-bold text-lg mb-6 border border-brand-500/20">01</div>
+                <h3 class="text-lg font-bold text-white mb-2">Analisis & Diskusi</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">Memahami tujuan website, target audiens, serta fitur-fitur khusus yang dibutuhkan.</p>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-white/5 relative group hover:border-indigo-500/50 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-6 border border-indigo-500/20">02</div>
+                <h3 class="text-lg font-bold text-white mb-2">Desain UI/UX</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">Membuat tampilan visual website yang menarik, modern, dan mudah dipahami oleh pengguna.</p>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-white/5 relative group hover:border-purple-500/50 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-lg mb-6 border border-purple-500/20">03</div>
+                <h3 class="text-lg font-bold text-white mb-2">Pengodean & Backend</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">Membangun arsitektur database, sistem backend Laravel/PHP, dan merangkai antarmuka.</p>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-white/5 relative group hover:border-emerald-500/50 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-lg mb-6 border border-emerald-500/20">04</div>
+                <h3 class="text-lg font-bold text-white mb-2">Testing & Peluncuran</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">Pengujian keamanan, kecepatan website, konfigurasi domain/hosting, dan rilis publik.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ESTIMATOR SECTION -->
+    <section id="estimator" class="py-24 px-4 lg:px-12 max-w-7xl mx-auto z-10 relative">
+        <div class="glass-card rounded-3xl p-8 lg:p-12 border border-brand-500/20 relative overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-6">
+                    <span class="text-brand-400 text-xs font-bold uppercase tracking-widest">Kalkulator Estimasi</span>
+                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-white mt-2 mb-4">Hitung Estimasi Biaya Projek<span class="text-brand-500">.</span></h2>
+                    <p class="text-slate-400 text-sm mb-6">Pilih jenis website dan kebutuhan fitur Anda untuk memperoleh gambaran awal anggaran investasi.</p>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-300 mb-2">1. Jenis Website</label>
+                            <div class="grid grid-cols-2 gap-2" id="calc-type">
+                                <button type="button" onclick="selectType(this, 2500000)" class="type-btn p-3 rounded-xl border border-brand-500 bg-brand-500/10 text-left text-xs text-slate-200">Portofolio / Individu (Rp 2,5 Jt)</button>
+                                <button type="button" onclick="selectType(this, 5000000)" class="type-btn p-3 rounded-xl border border-white/10 text-left text-xs text-slate-200 bg-slate-900/50 hover:border-brand-500">Website Bisnis / UMKM (Rp 5 Jt)</button>
+                                <button type="button" onclick="selectType(this, 7500000)" class="type-btn p-3 rounded-xl border border-white/10 text-left text-xs text-slate-200 bg-slate-900/50 hover:border-brand-500">Website Pendidikan (Rp 7,5 Jt)</button>
+                                <button type="button" onclick="selectType(this, 10000000)" class="type-btn p-3 rounded-xl border border-white/10 text-left text-xs text-slate-200 bg-slate-900/50 hover:border-brand-500">Website Instansi Pemerintah (Rp 10 Jt)</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-300 mb-2">2. Fitur & Modul Tambahan</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="flex items-center gap-2 p-3 rounded-xl glass-card text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" onchange="calculateTotal()" value="1500000" class="feature-check rounded border-slate-700 bg-slate-900 text-brand-500 focus:ring-0">
+                                    <span>Panel Admin / CMS Custom (+ Rp 1,5 Jt)</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-3 rounded-xl glass-card text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" onchange="calculateTotal()" value="2000000" class="feature-check rounded border-slate-700 bg-slate-900 text-brand-500 focus:ring-0">
+                                    <span>Sistem Auth / User Multi-Role (+ Rp 2 Jt)</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-3 rounded-xl glass-card text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" onchange="calculateTotal()" value="1000000" class="feature-check rounded border-slate-700 bg-slate-900 text-brand-500 focus:ring-0">
+                                    <span>Integrasi WhatsApp / Payment (+ Rp 1 Jt)</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-3 rounded-xl glass-card text-xs text-slate-300 cursor-pointer">
+                                    <input type="checkbox" onchange="calculateTotal()" value="1500000" class="feature-check rounded border-slate-700 bg-slate-900 text-brand-500 focus:ring-0">
+                                    <span>Layanan Pengerjaan Cepat (+ Rp 1,5 Jt)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6 flex justify-center">
+                    <div class="w-full max-w-md p-8 rounded-2xl glass-card border border-brand-500/30 flex flex-col items-center text-center bg-slate-950/80">
+                        <span class="text-xs uppercase font-bold tracking-wider text-slate-400 mb-2">Perkiraan Investasi</span>
+                        <div class="text-4xl font-extrabold text-white font-display my-2" id="estimated-price">Rp 2.500.000</div>
+                        <p class="text-xs text-slate-400 mb-6">Waktu pengerjaan berkisar 1 - 3 minggu sesuai tingkat rincian fitur.</p>
+                        
+                        <a href="#contact" onclick="fillProjectEstimate()" class="w-full py-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl transition-all">
+                            Konsultasikan Projek
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="py-24 px-4 lg:px-12 max-w-7xl mx-auto z-10 relative">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            <div class="lg:col-span-5 flex flex-col justify-between">
+                <div>
+                    <span class="text-brand-400 text-xs font-bold uppercase tracking-widest">Kontak & Lokasi</span>
+                    <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white mt-2 mb-6">Mari Berdiskusi<span class="text-brand-500">.</span></h2>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-8">Memiliki kebutuhan pembuatan website atau konsultasi sistem? Kirimkan pesan Anda langsung di bawah ini.</p>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center gap-4 glass-card p-4 rounded-xl border border-white/5">
+                            <div class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center text-base"><i class="fa-solid fa-envelope"></i></div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Email Direct</span>
+                                <a href="mailto:wahyupranata3101@gmail.com" class="text-white font-semibold text-sm hover:text-brand-400">wahyupranata3101@gmail.com</a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 glass-card p-4 rounded-xl border border-white/5">
+                            <div class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center text-base"><i class="fa-solid fa-phone"></i></div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Telepon / WhatsApp</span>
+                                <a href="https://wa.me/6282245579450" target="_blank" class="text-white font-semibold text-sm hover:text-brand-400">+62 822-4557-9450</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Jayapura Map Card -->
+                <div class="glass-card rounded-2xl p-4 border border-white/5 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-3 px-2">
+                        <span class="text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-map-pin text-rose-500"></i> Lokasi Studio</span>
+                        <span class="text-[10px] text-slate-400">Jayapura, Papua, Indonesia</span>
+                    </div>
+                    <div class="w-full h-36 rounded-xl bg-slate-900 relative overflow-hidden border border-white/5">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127503.26871032822!2d140.63842135!3d-2.55395275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x686c581eb08149ef%3A0x868b446a36fa33d2!2sJayapura%2C%20Papua!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid" class="w-full h-full border-0 opacity-70 grayscale contrast-125" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Kontak Terhubung ke Formspree Email -->
+            <div class="lg:col-span-7">
+                <form id="contact-form" action="https://formspree.io/f/wahyupranata3101@gmail.com" method="POST" onsubmit="handleFormSubmit(event)" class="glass-card p-8 rounded-3xl border border-white/5 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-300 mb-2">Nama Lengkap</label>
+                            <input type="text" name="nama" required placeholder="Nama Anda" class="w-full px-4 py-3 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white text-sm focus:outline-none focus:border-brand-500 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-300 mb-2">Alamat Email / No. WA</label>
+                            <input type="text" name="email_atau_wa" required placeholder="email@domain.com / 0812xxx" class="w-full px-4 py-3 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white text-sm focus:outline-none focus:border-brand-500 transition-colors">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-300 mb-2">Subjek Projek</label>
+                        <input type="text" name="subjek" id="form-subject" placeholder="Pembuatan Website Bisnis / Sekolah" class="w-full px-4 py-3 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white text-sm focus:outline-none focus:border-brand-500 transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-300 mb-2">Pesan & Rincian Kebutuhan</label>
+                        <textarea name="pesan" id="form-message" rows="5" required placeholder="Jelaskan jenis website, gambaran fitur, atau target pengerjaan Anda..." class="w-full px-4 py-3 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none"></textarea>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full py-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span id="btn-text">Kirim Pesan</span>
+                        <i id="btn-icon" class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                    
+                    <div id="form-status" class="hidden p-4 rounded-xl text-center text-xs font-medium"></div>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="py-12 px-4 lg:px-12 border-t border-slate-800/80 relative z-10 glass-nav mt-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-400">
+            <div class="flex items-center gap-3">
+                <span class="font-display font-bold text-white text-base">Wahyu<span class="text-brand-400">.</span>Pranata</span>
+                <span>© 2026 Wahyu Pranata. Jayapura, Papua.</span>
+            </div>
+
+            <div class="flex items-center gap-6 text-sm">
+                <a href="#" class="hover:text-brand-400 transition-colors" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="https://wa.me/6282245579450" target="_blank" class="hover:text-brand-400 transition-colors" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 hover:text-white transition-colors">
+                <span>Kembali ke Atas</span>
+                <i class="fa-solid fa-arrow-up"></i>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        /* 1. Custom Pointer Cursor */
+        const cursor = document.getElementById('custom-cursor');
+        const blur = document.getElementById('cursor-blur');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            blur.style.left = e.clientX + 'px';
+            blur.style.top = e.clientY + 'px';
+        });
+
+        document.querySelectorAll('a, button, input, textarea').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+
+        /* 2. Theme Switcher */
+        function setTheme(themeName) {
+            document.body.classList.remove('theme-minimal', 'theme-pastel', 'theme-neon', 'theme-light');
+            if (themeName !== 'minimal') {
+                document.body.classList.add(`theme-${themeName}`);
+            }
+        }
+
+        /* 3. Realtime Jam Asia/Jayapura (WIT) */
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jayapura', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('hero-clock').innerText = timeString + ' WIT';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        /* 4. Canvas Particle Mesh Background */
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 1.5 + 0.5;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#60a5fa';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                for (let j = index + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(96, 165, 250, ${1 - dist / 120})`;
+                        ctx.lineWidth = 0.4;
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        /* 5. Mobile Navigation Toggle */
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        /* 6. Estimator Calculation */
+        let basePrice = 2500000;
+
+        function selectType(btn, price) {
+            document.querySelectorAll('.type-btn').forEach(b => {
+                b.classList.remove('border-brand-500', 'bg-brand-500/10');
+                b.classList.add('border-white/10', 'bg-slate-900/50');
+            });
+            btn.classList.remove('border-white/10', 'bg-slate-900/50');
+            btn.classList.add('border-brand-500', 'bg-brand-500/10');
+            basePrice = price;
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = basePrice;
+            document.querySelectorAll('.feature-check:checked').forEach(cb => {
+                total += parseInt(cb.value);
+            });
+            document.getElementById('estimated-price').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function fillProjectEstimate() {
+            const price = document.getElementById('estimated-price').innerText;
+            document.getElementById('form-subject').value = `Konsultasi Projek (Estimasi: ${price})`;
+            document.getElementById('form-message').value = `Halo Wahyu, saya berminat membuat website dengan estimasi biaya sekitar ${price}. Mohon informasi selengkapnya.`;
+        }
+
+        /* 7. Contact Form Handling Terhubung ke Formspree Email */
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const status = document.getElementById('form-status');
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+
+            submitBtn.disabled = true;
+            btnText.innerText = "Mengirim...";
+            btnIcon.className = "fa-solid fa-spinner fa-spin text-xs";
+            status.className = "hidden";
+
+            const data = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: data,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    status.innerText = "Terima kasih! Pesan Anda telah terkirim dan langsung masuk ke email Wahyu. Saya akan membalasnya secepatnya.";
+                    status.className = "p-4 rounded-xl text-center text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 block";
+                    form.reset();
+                } else {
+                    const resData = await response.json();
+                    if (resData.errors) {
+                        status.innerText = resData.errors.map(error => error.message).join(", ");
+                    } else {
+                        status.innerText = "Maaf, terjadi kendala saat mengirim pesan. Silakan hubungi via WhatsApp.";
+                    }
+                    status.className = "p-4 rounded-xl text-center text-xs font-medium bg-rose-500/20 text-rose-400 border border-rose-500/30 block";
+                }
+            } catch (error) {
+                status.innerText = "Gagal terhubung ke server. Periksa koneksi internet Anda atau hubungi langsung via WhatsApp.";
+                status.className = "p-4 rounded-xl text-center text-xs font-medium bg-rose-500/20 text-rose-400 border border-rose-500/30 block";
+            } finally {
+                submitBtn.disabled = false;
+                btnText.innerText = "Kirim Pesan";
+                btnIcon.className = "fa-solid fa-paper-plane text-xs";
+            }
+        }
+
+        window.onload = function() {
+            calculateTotal();
+        }
+    </script>
+</body>
+</html>
